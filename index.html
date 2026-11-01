@@ -63,7 +63,7 @@
 
         /* Glassmorphism */
         .glass-card {
-            background: rgba(15, 23, 42, 0.78);
+            background: rgba(15, 23, 42, 0.82);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -169,6 +169,40 @@
             animation: pulseGlow 3s infinite;
         }
 
+        /* Goal Kick Ball Animation */
+        @keyframes ballShoot {
+            0% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 1; }
+            50% { transform: translate(60px, -40px) scale(0.85) rotate(360deg); opacity: 0.9; }
+            100% { transform: translate(140px, -80px) scale(0.4) rotate(720deg); opacity: 0; }
+        }
+
+        .ball-shooting {
+            animation: ballShoot 0.65s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
+
+        /* Score Flash Animation */
+        @keyframes scorePop {
+            0% { transform: scale(1); }
+            40% { transform: scale(1.22); color: #facc15; }
+            100% { transform: scale(1); }
+        }
+
+        .score-popping {
+            animation: scorePop 0.5s ease-out;
+        }
+
+        /* Net Shake Animation */
+        @keyframes netShake {
+            0%, 100% { transform: scale(1); }
+            20% { transform: scale(1.08) rotate(-2deg); }
+            40% { transform: scale(1.08) rotate(2deg); }
+            60% { transform: scale(1.04) rotate(-1deg); }
+        }
+
+        .net-shaking {
+            animation: netShake 0.45s ease-in-out;
+        }
+
         /* Float subtle bounce */
         @keyframes floatSubtle {
             0%, 100% { transform: translateY(0px); }
@@ -201,30 +235,31 @@
         <div class="max-w-4xl mx-auto px-3.5 sm:px-6 py-2.5 flex items-center justify-between gap-2">
             <!-- Brand / Match Status -->
             <div class="flex items-center gap-2.5 min-w-0">
-                <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center shrink-0 shadow-lg shadow-emerald-500/25">
+                <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center shrink-0 shadow-lg shadow-emerald-500/25 cursor-pointer" onclick="playWhistle('foul')">
                     <i class="fa-solid fa-futbol text-white text-base sm:text-lg animate-spin" style="animation-duration: 12s;"></i>
                 </div>
                 <div class="min-w-0">
                     <span class="text-[9px] sm:text-[10px] font-sport uppercase tracking-widest text-emerald-400 block truncate">Atharv 🇮🇳 • Inshi 🇴🇲</span>
-                    <h1 class="text-xs sm:text-sm font-bold text-white tracking-tight truncate">International Edition</h1>
+                    <h1 class="text-xs sm:text-sm font-bold text-white tracking-tight truncate">International Final</h1>
                 </div>
             </div>
 
             <!-- Action Buttons -->
             <div class="flex items-center gap-1.5 sm:gap-2">
+                <!-- Sound Toggle / Whistle Button -->
+                <button onclick="playWhistle('foul')" title="Blow Referee Whistle" class="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-medium text-amber-300 flex items-center gap-1.5 transition active:scale-95">
+                    <i class="fa-solid fa-bullhorn text-amber-400"></i>
+                    <span class="hidden sm:inline">Whistle</span>
+                </button>
+
                 <!-- Screenshot Mode Button -->
                 <button onclick="toggleScreenshotMode()" title="Hide buttons for clean screenshot" class="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-medium text-slate-200 flex items-center gap-1.5 transition active:scale-95">
                     <i class="fa-solid fa-camera text-slate-400"></i>
                     <span class="hidden sm:inline">Screenshot</span>
                 </button>
 
-                <!-- Sound chime / whistle toggle -->
-                <button id="soundBtn" onclick="playStadiumSound()" title="Stadium Whistle & Chime" class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs sm:text-sm text-amber-300 flex items-center justify-center transition active:scale-95">
-                    <i class="fa-solid fa-bullhorn"></i>
-                </button>
-
                 <!-- Safe Landing Confetti Button -->
-                <button onclick="triggerCelebration()" class="px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-amber-500 hover:from-emerald-400 hover:to-amber-400 text-slate-950 font-bold text-xs sm:text-sm shadow-lg shadow-emerald-500/20 flex items-center gap-1.5 transition transform active:scale-95">
+                <button onclick="triggerCelebration(); playWhistle('goal');" class="px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-amber-500 hover:from-emerald-400 hover:to-amber-400 text-slate-950 font-bold text-xs sm:text-sm shadow-lg shadow-emerald-500/20 flex items-center gap-1.5 transition transform active:scale-95">
                     <span>Safe Landing</span>
                     <span>🎉</span>
                 </button>
@@ -257,8 +292,8 @@
             <!-- Broadcast Scoreboard Banner -->
             <div class="glass-card rounded-3xl p-4 sm:p-7 relative overflow-hidden">
                 <!-- Top Tournament Pill -->
-                <div class="flex flex-col items-center justify-center text-center mb-5 sm:mb-6">
-                    <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-500/15 border border-amber-400/30 text-amber-300 text-[11px] sm:text-xs font-sport font-bold tracking-widest uppercase mb-1.5 glow-badge">
+                <div class="flex flex-col items-center justify-center text-center mb-4 sm:mb-5">
+                    <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-500/15 border border-amber-400/30 text-amber-300 text-[11px] sm:text-xs font-sport font-bold tracking-widest uppercase mb-1 glow-badge">
                         <i class="fa-solid fa-trophy text-amber-400"></i>
                         <span>BEST MATCH OF THE SEASON • UMINGLE CUP FINAL</span>
                     </div>
@@ -279,14 +314,15 @@
 
                     <!-- Center Scoreline -->
                     <div class="flex flex-col items-center justify-center text-center">
-                        <div class="px-2 py-0.5 rounded bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 font-sport text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+                        <div id="matchStatusPill" class="px-2.5 py-0.5 rounded bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 font-sport text-[9px] sm:text-[10px] font-bold uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
                             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-                            <span>1st Leg FT</span>
+                            <span id="matchStatusText">KICK-OFF ⏱️ 01'</span>
                         </div>
-                        <div class="font-sport text-3xl sm:text-5xl md:text-6xl font-bold tracking-tighter text-white bg-slate-900/90 border border-white/15 px-3.5 sm:px-6 py-1.5 sm:py-2 rounded-2xl shadow-inner">
-                            1 <span class="text-amber-400 mx-0.5">-</span> 1
+                        <!-- Live Score Numbers -->
+                        <div id="scoreDisplay" class="font-sport text-3xl sm:text-5xl md:text-6xl font-bold tracking-tighter text-white bg-slate-900/90 border border-white/15 px-3.5 sm:px-6 py-1.5 sm:py-2 rounded-2xl shadow-inner transition-transform">
+                            <span id="scoreAtharv">0</span> <span class="text-amber-400 mx-0.5">-</span> <span id="scoreInshi">0</span>
                         </div>
-                        <p class="text-[10px] sm:text-xs font-medium text-amber-300 mt-2 bg-amber-500/10 px-2.5 sm:px-3 py-1 rounded-full border border-amber-500/20">
+                        <p id="aggregateTag" class="text-[10px] sm:text-xs font-medium text-amber-300 mt-2 bg-amber-500/10 px-2.5 sm:px-3 py-1 rounded-full border border-amber-500/20">
                             Aggregate: <span class="font-bold">Endless Talks ✨</span>
                         </p>
                     </div>
@@ -302,8 +338,15 @@
                     </div>
                 </div>
 
+                <!-- Dynamic Live Match Commentary Flash Banner -->
+                <div id="commentaryBanner" class="mt-3 py-2 px-3.5 rounded-2xl bg-slate-900/90 border border-amber-400/30 text-center transition-all duration-300">
+                    <span id="commentaryText" class="text-xs sm:text-sm font-semibold text-amber-300">
+                        ⚡ Welcome to the Final! Match kicking off...
+                    </span>
+                </div>
+
                 <!-- Live Flight Tracker Bar inside Scoreboard -->
-                <div class="mt-5 sm:mt-6 pt-4 sm:pt-5 border-t border-white/10">
+                <div class="mt-4 pt-3.5 border-t border-white/10">
                     <div class="flex items-center justify-between text-[11px] sm:text-xs text-slate-300 mb-2 px-1">
                         <span class="flex items-center gap-1.5 font-semibold text-blue-300">
                             <i class="fa-solid fa-plane-departure"></i> IND (Departure)
@@ -323,6 +366,63 @@
                             ✈️
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <!-- ==========================================
+                 INTERACTIVE SHOOT GOAL ARENA FOR INSHI
+                 ========================================== -->
+            <div class="glass-card rounded-3xl p-4 sm:p-6 border border-emerald-500/30 bg-gradient-to-b from-slate-900/95 via-emerald-950/20 to-slate-900/95 shadow-xl relative overflow-hidden">
+                <!-- Mini Stadium Header -->
+                <div class="flex items-center justify-between mb-3 border-b border-white/10 pb-2.5">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <h3 class="font-sport font-bold text-xs sm:text-sm uppercase tracking-wider text-white">
+                            Live Interactive Pitch • Inshi Penalty Box
+                        </h3>
+                    </div>
+                    <span id="streakBadge" class="text-[10px] font-sport uppercase tracking-wider text-amber-300 bg-amber-500/10 border border-amber-400/30 px-2.5 py-0.5 rounded-full">
+                        Inshi Goals: <span id="inshiGoalsCount">0</span>
+                    </span>
+                </div>
+
+                <!-- Stadium Goal Net Visual with Ball -->
+                <div class="relative w-full h-28 sm:h-32 rounded-2xl bg-gradient-to-b from-emerald-900/40 to-slate-950 border border-emerald-500/20 flex items-center justify-center overflow-hidden mb-4">
+                    <!-- Pitch grid markings -->
+                    <div class="absolute inset-0 bg-[radial-gradient(#10b981_1px,transparent_1px)] [background-size:16px_16px] opacity-20"></div>
+                    <div class="absolute inset-x-8 top-0 bottom-0 border-x-2 border-dashed border-white/10"></div>
+                    
+                    <!-- Goal Net Graphic -->
+                    <div id="goalNet" class="relative z-10 flex flex-col items-center justify-center p-3 rounded-xl bg-slate-900/70 border-2 border-white/20 shadow-2xl transition-transform">
+                        <div class="text-3xl sm:text-4xl">🥅</div>
+                        <span class="text-[9px] font-sport uppercase tracking-wider text-emerald-400 mt-0.5">ATHARV'S NET</span>
+                    </div>
+
+                    <!-- Animated Ball -->
+                    <div id="animBall" class="absolute bottom-3 left-10 sm:left-20 text-2xl sm:text-3xl select-none transition-all">
+                        ⚽
+                    </div>
+                </div>
+
+                <!-- Action Controls: Inshi Shoot Goal Button -->
+                <div class="flex flex-wrap items-center justify-center gap-2.5 sm:gap-3">
+                    <!-- Main Inshi Strike Button -->
+                    <button onclick="inshiShootGoal()" class="flex-1 min-w-[200px] py-3 px-5 rounded-2xl bg-gradient-to-r from-amber-500 via-emerald-500 to-teal-500 hover:from-amber-400 hover:to-teal-400 text-slate-950 font-sport font-black text-xs sm:text-sm uppercase tracking-wider shadow-lg shadow-emerald-500/30 active:scale-95 transition-all flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-futbol animate-bounce"></i>
+                        <span>Shoot Goal, Inshi! (Hit as much as you want)</span>
+                        <i class="fa-solid fa-fire text-amber-950"></i>
+                    </button>
+
+                    <!-- Atharv Counter Shot Button -->
+                    <button onclick="atharvShootGoal()" class="py-2.5 px-3.5 rounded-2xl bg-slate-800 hover:bg-slate-700 border border-blue-400/30 text-blue-300 font-sport font-bold text-xs uppercase tracking-wider active:scale-95 transition-all flex items-center gap-1.5">
+                        <span>Atharv Shot 🇮🇳</span>
+                    </button>
+
+                    <!-- VAR Foul Trigger Button -->
+                    <button onclick="triggerFoulModal()" class="py-2.5 px-3.5 rounded-2xl bg-slate-800 hover:bg-slate-700 border border-amber-400/30 text-amber-300 font-sport font-bold text-xs uppercase tracking-wider active:scale-95 transition-all flex items-center gap-1.5" title="Check for fouls!">
+                        <i class="fa-solid fa-triangle-exclamation text-amber-400"></i>
+                        <span>Check Foul!</span>
+                    </button>
                 </div>
             </div>
 
@@ -442,23 +542,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Interactive Cheer Box -->
-            <div class="glass-card rounded-3xl p-4 sm:p-6 text-center border border-amber-400/30 bg-gradient-to-b from-slate-900/90 to-amber-950/20">
-                <h4 class="font-sport font-bold text-sm sm:text-base text-amber-300 uppercase tracking-wider mb-1">
-                    Send Cheers to Inshi in Muscat 🇴🇲
-                </h4>
-                <p class="text-xs text-slate-300 mb-3">Tap to shoot a goal of good vibes straight across the Arabian Sea!</p>
-                <div class="flex items-center justify-center gap-3">
-                    <button onclick="sendCheer()" class="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-amber-500 via-emerald-500 to-teal-500 text-slate-950 font-extrabold text-sm shadow-lg shadow-amber-500/25 active:scale-95 transition-all flex items-center gap-2">
-                        <i class="fa-solid fa-futbol animate-bounce"></i>
-                        <span>Shoot Goal! ⚽</span>
-                    </button>
-                    <span id="cheerCounter" class="font-sport text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-3 py-2 rounded-xl">
-                        Cheers: 0
-                    </span>
-                </div>
-            </div>
         </section>
 
 
@@ -568,8 +651,46 @@
 
     </main>
 
+    <!-- ==========================================
+         REFEREE FOUL & VAR MODAL (Flirty/Random)
+         ========================================== -->
+    <div id="foulModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-md p-4 transition-opacity">
+        <div class="glass-card w-full max-w-sm rounded-3xl p-6 border-2 border-amber-400/40 text-center shadow-2xl relative animate-bounce" style="animation-duration: 0.6s; animation-iteration-count: 1;">
+            <!-- Card graphic -->
+            <div id="foulCardIcon" class="w-16 h-22 mx-auto my-1 rounded-lg bg-amber-400 shadow-xl shadow-amber-500/50 flex items-center justify-center text-slate-950 font-sport font-black text-xs border border-white/40">
+                REFEREE
+            </div>
+
+            <div class="mt-4">
+                <span id="foulTypeBadge" class="px-3 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-sport text-xs font-bold uppercase tracking-wider border border-amber-400/40">
+                    FOUL COMMITTED BY INSHI 🟨
+                </span>
+                <h3 id="foulTitle" class="font-sport font-extrabold text-lg text-white mt-2">
+                    Charm Violation on Pitch!
+                </h3>
+                <p id="foulReason" class="text-xs sm:text-sm text-slate-300 mt-2 leading-relaxed">
+                    Inshi booked by match officials for smiling too cutely. College player completely forgot his defensive tactics.
+                </p>
+                <div class="mt-2.5 p-2.5 rounded-xl bg-slate-900/80 border border-white/10 text-[11px] text-emerald-400 font-sport">
+                    VAR RULING: Match continues, but Atharv is awarded a mandatory late-night call! 📞✨
+                </div>
+            </div>
+
+            <div class="mt-5">
+                <button onclick="closeFoulModal()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-emerald-500 text-slate-950 font-sport font-bold text-xs uppercase tracking-wider shadow-lg active:scale-95 transition-all">
+                    Resume Match & Keep Scoring ⚽
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- JavaScript Logic -->
     <script>
+        // Match State
+        let atharvScore = 0;
+        let inshiScore = 0;
+        let isAudioUnlocked = false;
+
         // 1. Tab Switching (Match Report vs FUT Card)
         function switchView(view) {
             const viewMatch = document.getElementById('viewMatch');
@@ -610,7 +731,280 @@
             }
         }
 
-        // 3. Interactive 3D Tilt & Holographic Shine for FUT Card
+        // 3. Web Audio API - Realistic FIFA Referee Whistle & Crowd Roar
+        let audioCtx = null;
+        function getAudioContext() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            isAudioUnlocked = true;
+            return audioCtx;
+        }
+
+        // Unlock audio on first touch/click anywhere on page
+        window.addEventListener('click', () => { if (!isAudioUnlocked) getAudioContext(); }, { once: true });
+        window.addEventListener('touchstart', () => { if (!isAudioUnlocked) getAudioContext(); }, { once: true });
+
+        function playWhistle(type = 'goal') {
+            try {
+                const ctx = getAudioContext();
+                const now = ctx.currentTime;
+                
+                function singleTone(startTime, duration, freq1 = 2800, freq2 = 3100) {
+                    [freq1, freq2].forEach((freq) => {
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        
+                        // Tremolo pea flutter inside referee whistle
+                        const lfo = ctx.createOscillator();
+                        const lfoGain = ctx.createGain();
+                        lfo.frequency.value = 22; // 22Hz flutter
+                        lfoGain.gain.value = 35;
+                        lfo.connect(osc.frequency);
+                        lfo.start(startTime);
+                        lfo.stop(startTime + duration);
+
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(freq, startTime);
+
+                        gain.gain.setValueAtTime(0, startTime);
+                        gain.gain.linearRampToValueAtTime(0.24, startTime + 0.02);
+                        gain.gain.setValueAtTime(0.24, startTime + duration - 0.04);
+                        gain.gain.linearRampToValueAtTime(0, startTime + duration);
+
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+
+                        osc.start(startTime);
+                        osc.stop(startTime + duration);
+                    });
+                }
+
+                if (type === 'goal') {
+                    // Double goal whistle: tweet! tweeet!
+                    singleTone(now, 0.16);
+                    singleTone(now + 0.22, 0.36);
+                    playCrowdRoar();
+                } else if (type === 'foul') {
+                    // Long shrill foul whistle
+                    singleTone(now, 0.45, 2700, 2950);
+                } else {
+                    singleTone(now, 0.22);
+                }
+            } catch(e) {}
+        }
+
+        function playCrowdRoar() {
+            try {
+                const ctx = getAudioContext();
+                const bufferSize = Math.floor(ctx.sampleRate * 0.7);
+                const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = Math.random() * 2 - 1;
+                }
+                const noise = ctx.createBufferSource();
+                noise.buffer = buffer;
+
+                const filter = ctx.createBiquadFilter();
+                filter.type = 'bandpass';
+                filter.frequency.value = 600;
+                filter.Q.value = 1.0;
+
+                const gain = ctx.createGain();
+                gain.gain.setValueAtTime(0.01, ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.18, ctx.currentTime + 0.15);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.7);
+
+                noise.connect(filter);
+                filter.connect(gain);
+                gain.connect(ctx.destination);
+
+                noise.start();
+                noise.stop(ctx.currentTime + 0.7);
+            } catch(e) {}
+        }
+
+        // 4. Update Score Function with Flash
+        function updateScore(ath, ins) {
+            atharvScore = ath;
+            inshiScore = ins;
+            
+            const athEl = document.getElementById('scoreAtharv');
+            const insEl = document.getElementById('scoreInshi');
+            const display = document.getElementById('scoreDisplay');
+            
+            athEl.textContent = ath;
+            insEl.textContent = ins;
+            
+            display.classList.add('score-popping');
+            setTimeout(() => display.classList.remove('score-popping'), 500);
+
+            document.getElementById('inshiGoalsCount').textContent = inshiScore;
+        }
+
+        function setCommentary(text, isGoal = false) {
+            const banner = document.getElementById('commentaryBanner');
+            const txt = document.getElementById('commentaryText');
+            txt.innerHTML = text;
+            if (isGoal) {
+                banner.classList.add('bg-amber-500/25', 'border-amber-400');
+                setTimeout(() => banner.classList.remove('bg-amber-500/25', 'border-amber-400'), 1200);
+            }
+        }
+
+        // 5. Opening Kickoff Sequence (Atharv scores first, then Inshi scores!)
+        function startMatchSequence() {
+            // Start at 0 - 0
+            updateScore(0, 0);
+            document.getElementById('matchStatusText').textContent = "KICK-OFF ⏱️ 01'";
+            setCommentary("🏁 Whistle blown! Friendly match between Atharv & Inshi kicks off!");
+
+            // 1.4s later: Atharv scores!
+            setTimeout(() => {
+                updateScore(1, 0);
+                playWhistle('goal');
+                document.getElementById('matchStatusText').textContent = "14' GOAL 🇮🇳";
+                setCommentary("⚽ 14' GOAL! Atharv opens the scoreline with a clean strike! India 1 - 0 Oman", true);
+                triggerCelebration(['🇮🇳', '⚽', '🔥']);
+            }, 1400);
+
+            // 3.4s later: Inshi equalizes with a wonder curve!
+            setTimeout(() => {
+                updateScore(1, 1);
+                playWhistle('goal');
+                document.getElementById('matchStatusText').textContent = "38' EQUALIZER 🇴🇲";
+                setCommentary("⚽ 38' WONDER GOAL! Inshi curves it into the top corner! India 1 - 1 Oman 🔥", true);
+                triggerCelebration(['🇴🇲', '⚽', '✨', '💛']);
+
+                // Reset to regular status
+                setTimeout(() => {
+                    document.getElementById('matchStatusText').textContent = "LIVE PITCH OPEN 🔥";
+                }, 1800);
+            }, 3400);
+        }
+
+        // 6. Inshi Shoot Goal Interaction (Shoot as much as she wants!)
+        let inshiShotCount = 0;
+        function inshiShootGoal() {
+            inshiShotCount++;
+            
+            // Random chance of flirty foul every 4-5 shots
+            if (inshiShotCount % 4 === 0) {
+                triggerFoulModal();
+                return;
+            }
+
+            // Animate Ball into Net
+            const ball = document.getElementById('animBall');
+            const net = document.getElementById('goalNet');
+            
+            ball.classList.remove('ball-shooting');
+            void ball.offsetWidth; // trigger reflow
+            ball.classList.add('ball-shooting');
+            
+            setTimeout(() => {
+                net.classList.add('net-shaking');
+                setTimeout(() => net.classList.remove('net-shaking'), 450);
+            }, 250);
+
+            // Update Score & Sound
+            playWhistle('goal');
+            updateScore(atharvScore, inshiScore + 1);
+
+            const commentaries = [
+                `🔥 GOOOAAAL! Inshi strikes with precision! Oman U-19 Star Striker is unstoppable!`,
+                `⚽ WHAT A GOAL BY INSHI! Atharv's goalkeeper had zero chance against that smile!`,
+                `✨ BANGER! Inshi hits the top bins again! Atharv is officially her #1 supporter!`,
+                `🚀 INSHI WITH A HAT-TRICK! The crowd in Muscat is cheering! 🇴🇲❤️`,
+                `🏆 ANOTHER CLINICAL FINISH! Inshi dominating the pitch today!`
+            ];
+            const randomMsg = commentaries[Math.floor(Math.random() * commentaries.length)];
+            setCommentary(randomMsg, true);
+            triggerCelebration();
+        }
+
+        function atharvShootGoal() {
+            playWhistle('goal');
+            updateScore(atharvScore + 1, inshiScore);
+            setCommentary(`⚽ GOAL BY ATHARV! College XI fightback! Match heats up: ${atharvScore} - ${inshiScore} 🇮🇳`, true);
+            triggerCelebration(['🇮🇳', '⚽', '🔥']);
+        }
+
+        // 7. Flirty / Random Fouls & VAR Modals
+        const foulsList = [
+            {
+                card: "yellow",
+                badge: "FOUL COMMITTED BY INSHI 🟨",
+                title: "Dangerous Eye Contact & Charm Violation!",
+                reason: "Referee booked Inshi for looking too cute on the pitch. College player completely forgot his defensive tactics and got distracted.",
+                varNote: "VAR RULING: Free kick awarded to Atharv, payable via WhatsApp call upon landing! 📞❤️"
+            },
+            {
+                card: "red",
+                badge: "VAR CHECK: OVERRULED 🚨",
+                title: "Illegal Heart Tackling in Midfield!",
+                reason: "Inshi was investigated for tackling Atharv's sleep schedule with 3 AM chats.",
+                varNote: "VAR RULING: Overruled! Heart desires more banter. Match continues indefinitely."
+            },
+            {
+                card: "yellow",
+                badge: "OFFSIDE CALL ⚠️",
+                title: "Running Rent-Free in Atharv's Head!",
+                reason: "Linesman flagged Inshi for running inside Atharv's mind 24/7 without valid visa or permission.",
+                varNote: "VAR RULING: Permanent residence granted inside Atharv's thoughts. 🇴🇲✨"
+            },
+            {
+                card: "yellow",
+                badge: "FOUL COMMITTED BY INSHI 🟨",
+                title: "Excessive Flight Mode Glow!",
+                reason: "Inshi committed a high-voltage charm foul while traveling from India to Muscat.",
+                varNote: "VAR RULING: Atharv receives a yellow card for blushing excessively on bench."
+            },
+            {
+                card: "red",
+                badge: "VAR FINAL DECISION 🏆",
+                title: "Atharv Surrenders The Trophy!",
+                reason: "VAR confirms Atharv has zero resistance against Inshi's strikes. Inshi is crowned undisputed Champion.",
+                varNote: "VAR RULING: 100% Chemistry confirmed. Next leg scheduled immediately!"
+            }
+        ];
+
+        let currentFoulIndex = 0;
+        function triggerFoulModal() {
+            playWhistle('foul');
+            const modal = document.getElementById('foulModal');
+            const data = foulsList[currentFoulIndex % foulsList.length];
+            currentFoulIndex++;
+
+            document.getElementById('foulTypeBadge').textContent = data.badge;
+            document.getElementById('foulTitle').textContent = data.title;
+            document.getElementById('foulReason').textContent = data.reason;
+            
+            const cardIcon = document.getElementById('foulCardIcon');
+            if (data.card === 'red') {
+                cardIcon.className = "w-16 h-22 mx-auto my-1 rounded-lg bg-rose-600 shadow-xl shadow-rose-600/50 flex items-center justify-center text-white font-sport font-black text-xs border border-white/40";
+                cardIcon.textContent = "RED CARD";
+            } else {
+                cardIcon.className = "w-16 h-22 mx-auto my-1 rounded-lg bg-amber-400 shadow-xl shadow-amber-500/50 flex items-center justify-center text-slate-950 font-sport font-black text-xs border border-white/40";
+                cardIcon.textContent = "YELLOW";
+            }
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeFoulModal() {
+            const modal = document.getElementById('foulModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            playWhistle('regular');
+        }
+
+        // 8. 3D Tilt & Holographic Shine for FUT Card
         const futCard = document.getElementById('futCard');
         const futShine = document.getElementById('futShine');
 
@@ -646,71 +1040,7 @@
         }, { passive: true });
         futCard.addEventListener('touchend', resetTilt);
 
-        // 4. Interactive Cheer Counter
-        let cheerCount = 0;
-        function sendCheer() {
-            cheerCount++;
-            document.getElementById('cheerCounter').textContent = `Cheers: ${cheerCount} ❤️`;
-            playChime(660);
-            triggerCelebration();
-        }
-
-        // 5. Web Audio API synthesized Chimes & Whistle (Zero lag, no files required)
-        let audioCtx = null;
-        function getAudioContext() {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            }
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
-            return audioCtx;
-        }
-
-        function playChime(freq = 523.25) {
-            try {
-                const ctx = getAudioContext();
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(freq, ctx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(freq * 1.5, ctx.currentTime + 0.3);
-                
-                gain.gain.setValueAtTime(0.25, ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
-                
-                osc.connect(gain);
-                gain.connect(ctx.destination);
-                osc.start();
-                osc.stop(ctx.currentTime + 0.5);
-            } catch(e) {}
-        }
-
-        function playStadiumSound() {
-            try {
-                const ctx = getAudioContext();
-                // Referee double whistle effect
-                const now = ctx.currentTime;
-                [0, 0.22].forEach(offset => {
-                    const osc = ctx.createOscillator();
-                    const gain = ctx.createGain();
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(2600, now + offset);
-                    osc.frequency.setValueAtTime(2750, now + offset + 0.08);
-                    
-                    gain.gain.setValueAtTime(0.2, now + offset);
-                    gain.gain.exponentialRampToValueAtTime(0.001, now + offset + 0.16);
-
-                    osc.connect(gain);
-                    gain.connect(ctx.destination);
-                    osc.start(now + offset);
-                    osc.stop(now + offset + 0.16);
-                });
-                triggerCelebration();
-            } catch(e) {}
-        }
-
-        // 6. Confetti & Emoji Celebration Engine
+        // 9. Confetti & Celebration Engine
         const canvas = document.getElementById('confettiCanvas');
         const ctx = canvas.getContext('2d');
         let particles = [];
@@ -723,13 +1053,13 @@
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
 
-        function triggerCelebration() {
-            const emojis = ['⚽', '🏆', '🇴🇲', '🇮🇳', '✈️', '✨', '💛', '🔥', '❤️'];
-            for (let i = 0; i < 45; i++) {
+        function triggerCelebration(customEmojis = null) {
+            const emojis = customEmojis || ['⚽', '🏆', '🇴🇲', '🇮🇳', '✈️', '✨', '💛', '🔥', '❤️'];
+            for (let i = 0; i < 48; i++) {
                 particles.push({
-                    x: window.innerWidth / 2 + (Math.random() - 0.5) * 160,
+                    x: window.innerWidth / 2 + (Math.random() - 0.5) * 180,
                     y: window.innerHeight * 0.65,
-                    vx: (Math.random() - 0.5) * 15,
+                    vx: (Math.random() - 0.5) * 16,
                     vy: -Math.random() * 16 - 6,
                     size: Math.random() * 14 + 18,
                     emoji: emojis[Math.floor(Math.random() * emojis.length)],
@@ -777,9 +1107,9 @@
             }
         }
 
-        // Auto trigger celebration on initial load
+        // On Load: Start Match Sequence automatically
         window.onload = function() {
-            setTimeout(triggerCelebration, 400);
+            startMatchSequence();
         };
     </script>
 </body>
